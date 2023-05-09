@@ -9,7 +9,7 @@ from .utils import searchProfiles, paginateProfiles
 def loginUser(request):
     if request.method == "POST":
         messages.error(request, "username OR password is incorrect")
-    return render(request, "users/login_register.html")
+    return render(request, "users/login_form.html")
 
 
 def resetPassword(request):
