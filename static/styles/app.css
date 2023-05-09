@@ -831,7 +831,7 @@ img {
   border-radius: 50%;
 }
 
-.backButton i {
+.backButton span {
   font-size: 1.8rem;
 }
 

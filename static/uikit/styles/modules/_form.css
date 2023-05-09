@@ -19,7 +19,7 @@
 }
 
 .form__label,
-.form__field > label {
+.form__field>label {
   display: block;
   margin-bottom: 0.5rem;
   color: var(--color-text);
@@ -81,8 +81,8 @@ textarea.input:active {
   color: var(--color-text);
 }
 
-.form__field--radio input + label,
-.form__field--checkbox input + label {
+.form__field--radio input+label,
+.form__field--checkbox input+label {
   display: inline-block;
   margin-left: 1.5rem;
   margin-right: 2rem;
@@ -179,6 +179,10 @@ textarea.input:active {
   background: var(--color-main-light);
 }
 
-.form__field--action > *:not(:last-child) {
+.form__field--action>*:not(:last-child) {
   margin-right: 1rem;
+}
+
+.error-message {
+  color: red;
 }
