@@ -2,7 +2,11 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.core.validators import MaxLengthValidator, MinLengthValidator, FileExtensionValidator
+from django.core.validators import (
+    MaxLengthValidator,
+    MinLengthValidator,
+    FileExtensionValidator,
+)
 from .models import Profile, Skill, Message
 
 
@@ -101,4 +105,13 @@ class FeedbackForm(forms.Form):
             )
         ],
         help_text="You can upload an SVG image file along with your feedback. This is useful for providing a screenshot or diagram to help explain your issue.",
+    )
+
+
+class ResetPasswordForm(forms.Form):
+    email = forms.EmailField(
+        validators=[
+            MinLengthValidator(5, message="Email must be at least 5 characters long."),
+            MaxLengthValidator(254, message="Email cannot exceed 254 characters."),
+        ]
     )

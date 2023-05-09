@@ -1,44 +1,28 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.models import User
 from .models import Profile
-from .forms import ProfileForm, SkillForm, MessageForm, FeedbackForm
+from .forms import ProfileForm, SkillForm, MessageForm, FeedbackForm, ResetPasswordForm
 from .utils import searchProfiles, paginateProfiles
 
 
 def loginUser(request):
-    page = "login"
-
-    if request.user.is_authenticated:
-        return redirect("profiles")
-
     if request.method == "POST":
-        username = request.POST["username"].lower()
-        password = request.POST["password"]
-
-        try:
-            user = User.objects.get(username=username)
-        except:
-            messages.error(request, "Username does not exist")
-
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect(request.GET["next"] if "next" in request.GET else "account")
-
-        else:
-            messages.error(request, "Username OR password is incorrect")
-
+        messages.error(request, "Username OR password is incorrect")
     return render(request, "users/login_register.html")
 
 
-def logoutUser(request):
-    logout(request)
-    messages.info(request, "User was logged out!")
-    return redirect("login")
+def resetPassword(request):
+    if request.method == "POST":
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            messages.success(
+                request,
+                "We sent password instructions to your email. Check spam or use correct address if not received.",
+            )
+    else:
+        form = ResetPasswordForm()
+    return render(request, "users/reset_password.html", context={"form": form})
 
 
 def profiles(request):
