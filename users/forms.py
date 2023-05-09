@@ -121,8 +121,7 @@ class FeedbackForm(forms.Form):
 
 class ResetPasswordForm(forms.Form):
     email = forms.EmailField(
-        validators=[
-            MinLengthValidator(5, message="Email must be at least 5 characters long."),
-            MaxLengthValidator(254, message="Email cannot exceed 254 characters."),
-        ]
+        widget=forms.EmailInput(
+            attrs={"class": "input", "maxlength": 100, "minlength": 5, "required": True}
+        )
     )
