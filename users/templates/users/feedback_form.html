@@ -5,42 +5,17 @@
     <div class="content-box">
         <div class="formWrapper">
             <a class="backButton" href="{% url 'profiles' %}"><br><span>&#9001;</span></a>
-            <form action="" method="post" enctype="multipart/form-data" class="form">
+            <form class="form" method="POST">
                 {% csrf_token %}
+                {% for field in form %}
                 <div class="form__field">
-                    <label for="{{ form.name.id_for_label }}" class="form__label">Name</label>
-                    <input type="text" id="{{ form.name.id_for_label }}" name="{{ form.name.name }}" class="input"
-                        maxlength="{{ form.name.field.max_length }}" minlength="2" required>
-                    {% for error in form.name.errors %}
+                    <label for="{{ field.auto_id }}" class="form__label">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
                     <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
-                <div class="form__field">
-                    <label for="{{ form.email.id_for_label }}" class="form__label">Email</label>
-                    <input type="email" id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" class="input"
-                        maxlength="{{ form.email.field.max_length }}" minlength="5" required>
-                    {% for error in form.email.errors %}
-                    <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                <div class="form__field">
-                    <label for="{{ form.message.id_for_label }}" class="form__label">Message</label>
-                    <textarea id="{{ form.message.id_for_label }}" name="{{ form.message.name }}"
-                        class="input input--textarea" maxlength="{{ form.message.field.max_length }}" minlength="10"
-                        required></textarea>
-                    {% for error in form.message.errors %}
-                    <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                </div>
-                <div class="form__field">
-                    <label for="{{ form.image.id_for_label }}" class="form__label">Image (SVG)</label>
-                    <input type="file" id="{{ form.image.id_for_label }}" name="{{ form.image.name }}" class="input"
-                        accept=".svg" required>
-                    {% for error in form.image.errors %}
-                    <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                    <p>{{ form.image.help_text }}</p>
-                </div>
+                {% endfor %}
                 <div class="form__field form__field--action">
                     <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
                 </div>
