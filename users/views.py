@@ -8,7 +8,7 @@ from .utils import searchProfiles, paginateProfiles
 
 def loginUser(request):
     if request.method == "POST":
-        messages.error(request, "Username OR password is incorrect")
+        messages.error(request, "username OR password is incorrect")
     return render(request, "users/login_register.html")
 
 
@@ -131,43 +131,20 @@ def inbox(request):
     return render(request, "users/inbox.html", context)
 
 
-@login_required(login_url="login")
-def viewMessage(request, pk):
-    profile = request.user.profile
-    message = profile.messages.get(id=pk)
-    if message.is_read == False:
-        message.is_read = True
-        message.save()
-    context = {"message": message}
-    return render(request, "users/message.html", context)
-
-
 def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
-    form = MessageForm()
-
-    try:
-        sender = request.user.profile
-    except:
-        sender = None
-
     if request.method == "POST":
         form = MessageForm(request.POST)
         if form.is_valid():
-            message = form.save(commit=False)
-            message.sender = sender
-            message.recipient = recipient
-
-            if sender:
-                message.name = sender.name
-                message.email = sender.email
-            message.save()
-
             messages.success(request, "Your message was successfully sent!")
-            return redirect("user-profile", pk=recipient.id)
+    else:
+        form = MessageForm()
 
-    context = {"recipient": recipient, "form": form}
-    return render(request, "users/message_form.html", context)
+    return render(
+        request,
+        "users/message_form.html",
+        context={"recipient": recipient, "form": form},
+    )
 
 
 def createFeedback(request):
