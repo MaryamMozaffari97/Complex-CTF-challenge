@@ -3,40 +3,28 @@
 {% block content %}
 <!-- Main Section -->
 <main class="formPage my-xl">
-    <div class="content-box">
-        <div class="formWrapper">
-            <a class="backButton" href="{% url 'user-profile' recipient.id  %}"><br><span>&#9001;</span></a>
-            <br>
+    <main class="formPage my-xl">
+        <div class="content-box">
+            <div class="formWrapper">
+                <a class="backButton" href="{% url 'user-profile' recipient.id  %}"><span>&#9001;</span></a>
 
-            <form class="form" method="POST">
-                {% csrf_token %}
-
-                {% if request.user.is_authenticated == False %}
-                <div class="form__field">
-                    <label for="formInput#text">{{form.name.label}}</label>
-                    {{form.name}}
-                </div>
-
-                <div class="form__field">
-                    <label for="formInput#text">{{form.email.label}}</label>
-                    {{form.email}}
-                </div>
-                {% endif %}
-
-                <div class="form__field">
-                    <label for="formInput#text">{{form.subject.label}}</label>
-                    {{form.subject}}
-                </div>
-
-                <div class="form__field">
-                    <label for="formInput#text">{{form.body.label}}</label>
-                    {{form.body}}
-                </div>
-
-                <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
-            </form>
+                <form class="form" method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="form__field">
+                        <label for="{{ field.auto_id }}" class="form__label">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                        <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="form__field form__field--action">
+                        <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
 
-{% endblock content %}
+    {% endblock content %}
