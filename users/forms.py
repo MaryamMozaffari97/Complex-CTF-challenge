@@ -88,34 +88,24 @@ class MessageForm(forms.Form):
 
 class FeedbackForm(forms.Form):
     name = forms.CharField(
-        max_length=100,
-        validators=[
-            MinLengthValidator(2, message="Name must be at least 2 characters long."),
-            MaxLengthValidator(30, message="Name cannot exceed 100 characters."),
-        ],
+        widget=forms.TextInput(
+            attrs={"class": "input", "maxlength": 100, "minlength": 5, "required": True}
+        )
     )
     email = forms.EmailField(
-        validators=[
-            MinLengthValidator(5, message="Email must be at least 5 characters long."),
-            MaxLengthValidator(254, message="Email cannot exceed 254 characters."),
-        ]
+        widget=forms.EmailInput(
+            attrs={"class": "input", "maxlength": 100, "minlength": 5, "required": True}
+        )
     )
     message = forms.CharField(
-        widget=forms.Textarea,
-        validators=[
-            MinLengthValidator(
-                10, message="Message must be at least 10 characters long."
-            ),
-            MaxLengthValidator(5000, message="Message cannot exceed 5000 characters."),
-        ],
-    )
-    image = forms.FileField(
-        validators=[
-            FileExtensionValidator(
-                allowed_extensions=["svg"], message="Only 'svg' file format is allowed."
-            )
-        ],
-        help_text="You can upload an SVG image file along with your feedback. This is useful for providing a screenshot or diagram to help explain your issue.",
+        widget=forms.Textarea(
+            attrs={
+                "class": "input input--textarea",
+                "maxlength": 1000,
+                "minlength": 10,
+                "required": True,
+            }
+        )
     )
 
 

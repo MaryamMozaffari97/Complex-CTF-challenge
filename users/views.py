@@ -154,8 +154,6 @@ def createFeedback(request):
             # svg_file = request.FILES["image"]
             # parsing the image
             messages.success(request, "Thank you for your feedback!")
-        else:
-            messages.error(request, "failed to process your data, please try again")
     else:
         form = FeedbackForm()
     return render(request, "users/feedback_form.html", {"form": form})
