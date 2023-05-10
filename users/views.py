@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Profile
-from .forms import ProfileForm, SkillForm, MessageForm, FeedbackForm, ResetPasswordForm
+from .forms import ProfileForm, MessageForm, FeedbackForm, ResetPasswordForm
 from .utils import searchProfiles, paginateProfiles
 
 
@@ -72,24 +72,6 @@ def editAccount(request):
 
     context = {"form": form}
     return render(request, "users/profile_form.html", context)
-
-
-@login_required(login_url="login")
-def createSkill(request):
-    profile = request.user.profile
-    form = SkillForm()
-
-    if request.method == "POST":
-        form = SkillForm(request.POST)
-        if form.is_valid():
-            skill = form.save(commit=False)
-            skill.owner = profile
-            skill.save()
-            messages.success(request, "Skill was added successfully!")
-            return redirect("account")
-
-    context = {"form": form}
-    return render(request, "users/skill_form.html", context)
 
 
 def createMessage(request, pk):
