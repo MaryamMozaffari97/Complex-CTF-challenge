@@ -23,15 +23,8 @@ def project(request, pk):
 
     if request.method == "POST":
         form = ReviewForm(request.POST)
-        review = form.save(commit=False)
-        review.project = projectObj
-        review.owner = request.user.profile
-        review.save()
-
-        projectObj.getVoteCount
-
-        messages.success(request, "Your review was successfully submitted!")
-        return redirect("project", pk=projectObj.id)
+        if form.is_valid():
+            messages.success(request, "Your review was successfully submitted!")
 
     return render(
         request, "projects/single-project.html", {"project": projectObj, "form": form}
