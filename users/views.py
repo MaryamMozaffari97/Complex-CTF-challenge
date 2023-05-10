@@ -1,8 +1,7 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.contrib import messages
 from .models import Profile
-from .forms import ProfileForm, MessageForm, FeedbackForm, ResetPasswordForm
+from .forms import MessageForm, FeedbackForm, ResetPasswordForm
 from .utils import searchProfiles, paginateProfiles
 
 
@@ -13,6 +12,7 @@ def loginUser(request):
 
 
 def resetPassword(request):
+    form = ResetPasswordForm()
     if request.method == "POST":
         form = ResetPasswordForm(request.POST)
         if form.is_valid():
@@ -20,8 +20,6 @@ def resetPassword(request):
                 request,
                 "We sent password instructions to your email. Check spam or use correct address if not received.",
             )
-    else:
-        form = ResetPasswordForm()
     return render(request, "users/reset_password.html", context={"form": form})
 
 
@@ -49,12 +47,12 @@ def userProfile(request, pk):
 
 def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
+    form = MessageForm()
+
     if request.method == "POST":
         form = MessageForm(request.POST)
         if form.is_valid():
             messages.success(request, "Your message was successfully sent!")
-    else:
-        form = MessageForm()
 
     return render(
         request,
@@ -64,12 +62,11 @@ def createMessage(request, pk):
 
 
 def createFeedback(request):
+    form = FeedbackForm()
     if request.method == "POST":
         form = FeedbackForm(request.POST, request.FILES)
         if form.is_valid():
             # svg_file = request.FILES["image"]
             # parsing the image
             messages.success(request, "Thank you for your feedback!")
-    else:
-        form = FeedbackForm()
     return render(request, "users/feedback_form.html", {"form": form})
