@@ -21,7 +21,6 @@ def createProfile(sender, instance, created, **kwargs):
         )
 
 
-
 def updateUser(sender, instance, created, **kwargs):
     profile = instance
     user = profile.user
