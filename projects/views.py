@@ -81,14 +81,3 @@ def updateProject(request, pk):
 
     context = {"form": form, "project": project}
     return render(request, "projects/project_form.html", context)
-
-
-@login_required(login_url="login")
-def deleteProject(request, pk):
-    profile = request.user.profile
-    project = profile.project_set.get(id=pk)
-    if request.method == "POST":
-        project.delete()
-        return redirect("projects")
-    context = {"object": project}
-    return render(request, "delete_template.html", context)
