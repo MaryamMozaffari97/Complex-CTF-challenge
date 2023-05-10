@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Project, Tag
-from .forms import ProjectForm, ReviewForm
+from .models import Project
+from .forms import ReviewForm
 from .utils import searchProjects, paginateProjects
 
 
@@ -37,25 +36,3 @@ def project(request, pk):
     return render(
         request, "projects/single-project.html", {"project": projectObj, "form": form}
     )
-
-
-@login_required(login_url="login")
-def createProject(request):
-    profile = request.user.profile
-    form = ProjectForm()
-
-    if request.method == "POST":
-        newtags = request.POST.get("newtags").replace(",", " ").split()
-        form = ProjectForm(request.POST, request.FILES)
-        if form.is_valid():
-            project = form.save(commit=False)
-            project.owner = profile
-            project.save()
-
-            for tag in newtags:
-                tag, created = Tag.objects.get_or_create(name=tag)
-                project.tags.add(tag)
-            return redirect("account")
-
-    context = {"form": form}
-    return render(request, "projects/project_form.html", context)
