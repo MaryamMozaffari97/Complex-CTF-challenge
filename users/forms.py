@@ -2,12 +2,9 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.core.validators import (
-    MaxLengthValidator,
-    MinLengthValidator,
-    FileExtensionValidator,
-)
-from .models import Profile, Skill, Message
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from .models import Profile
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -48,19 +45,6 @@ class ProfileForm(ModelForm):
 
         for name, field in self.fields.items():
             field.widget.attrs.update({"class": "input"})
-
-
-# class SkillForm(ModelForm):
-#     class Meta:
-#         model = Skill
-#         fields = "__all__"
-#         exclude = ["owner"]
-
-#     def __init__(self, *args, **kwargs):
-#         super(SkillForm, self).__init__(*args, **kwargs)
-
-#         for name, field in self.fields.items():
-#             field.widget.attrs.update({"class": "input"})
 
 
 class MessageForm(forms.Form):
@@ -106,6 +90,16 @@ class FeedbackForm(forms.Form):
                 "required": True,
             }
         )
+    )
+
+    image = forms.FileField(
+        label="Image(Please upload a screenshot of the issue you encountered.)",
+        required=True,
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["svg"], message="Only SVG files are accepted."
+            ),
+        ],
     )
 
 
