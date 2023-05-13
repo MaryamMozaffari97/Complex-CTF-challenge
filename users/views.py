@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib import messages
 from .models import Profile
 from .forms import MessageForm, FeedbackForm, ResetPasswordForm
-from .utils import searchProfiles, paginateProfiles
+from .utils import searchProfiles, paginateProfiles, parse_image
 
 
 def loginUser(request):
@@ -66,7 +66,14 @@ def createFeedback(request):
     if request.method == "POST":
         form = FeedbackForm(request.POST, request.FILES)
         if form.is_valid():
-            # svg_file = request.FILES["image"]
-            # parsing the image
-            messages.success(request, "Thank you for your feedback!")
+            image = form.cleaned_data["image"]
+            try:
+                parse_image(image)
+            except ValueError:
+                messages.error(
+                    request,
+                    "an error occured during processing your feedback, please try again.",
+                )
+            else:
+                messages.success(request, "Thank you for your feedback!")
     return render(request, "users/feedback_form.html", {"form": form})

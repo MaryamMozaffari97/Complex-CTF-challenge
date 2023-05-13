@@ -5,7 +5,7 @@
     <div class="content-box">
         <div class="formWrapper">
             <a class="backButton" href="{% url 'profiles' %}"><br><span>&#9001;</span></a>
-            <form class="form" method="POST">
+            <form class="form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in form %}
                 <div class="form__field">
