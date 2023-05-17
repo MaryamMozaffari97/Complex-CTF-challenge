@@ -1,7 +1,15 @@
-from django.db.models import Q
-from .models import Profile, Skill
+import base64
+import re
+from urllib.parse import urlparse
 
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+import requests
+from django.core.files import File
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
+from lxml import etree
+
+from .models import Profile, Skill
 
 
 def paginateProfiles(request, profiles, results):
@@ -48,49 +56,50 @@ def searchProfiles(request):
     return profiles, search_query
 
 
-from urllib.parse import urlparse
-from lxml import etree
-import socket
-import base64
-
-
 class CustomResolver(etree.Resolver):
-    def parse_http_scheme(self, url):
-        parsed_url = urlparse(url)
-        hostname = parsed_url.netloc.split(":")[0]
-        port = parsed_url.port
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.connect((hostname, port))
-                request = f"GET / HTTP/1.1\r\nHost: {url}\r\n\r\n"
-                s.sendall(request.encode())
-            except BrokenPipeError as exc:
-                pass
-            except Exception as exc:
-                raise ValueError
+    @staticmethod
+    def encode_if_not_external_entity(content):
+        if not re.match(r"<!ENTITY.*>", content):
+            return base64.b64encode(content.encode()).decode()
+        return content
 
-    def parse_file_scheme(self, url):
+    def parse_http_scheme(self, url, context):
+        headers = {"Connection": "close"}
+        try:
+            response = requests.get(url, headers=headers, stream=True, timeout=5)
+            if response.status_code == 200:
+                content = self.encode_if_not_external_entity(response.text)
+                return self.resolve_string(content, context)
+            else:
+                raise ValueError(
+                    f"HTTP request failed with status code: {response.status_code}"
+                )
+        except requests.exceptions.Timeout as exc:
+            pass
+        except requests.exceptions.RequestException as exc:
+            raise ValueError("Failed to fetch the URL") from exc
+
+    def parse_file_scheme(self, url, context):
         parsed_uri = urlparse(url)
         file_path = parsed_uri.path
         try:
             with open(file_path, "rb") as file:
-                return base64.b64encode(file.read())
-        except FileNotFoundError:
-            raise ValueError
+                encoded_content = base64.b64encode(file.read())
+                return self.resolve_string(encoded_content, context)
+        except FileNotFoundError as exc:
+            raise ValueError(f"File not found: {file_path}") from exc
 
     def resolve(self, url, public_id, context):
         if url.startswith("http://") or url.startswith("https://"):
-            self.parse_http_scheme(url)
+            return self.parse_http_scheme(url, context)
 
         if url.startswith("file://"):
-            encoded_string = self.parse_file_scheme(url)
-            if encoded_string is not None:
-                return self.resolve_string(encoded_string, context)
+            return self.parse_file_scheme(url, context)
 
-        super().resolve(url, public_id, context)
+        return super().resolve(url, public_id, context)
 
 
-def parse_image(image_file):
+def parse_image(image_field):
     parser = etree.XMLParser(
         load_dtd=True,
         no_network=False,
@@ -99,7 +108,16 @@ def parse_image(image_file):
         huge_tree=True,
     )
     parser.resolvers.add(CustomResolver())
+
+    if not isinstance(image_field, (File, InMemoryUploadedFile)):
+        raise ValueError("Input image should be a Django ImageFormField")
+
     try:
-        tree = etree.parse(image_file, parser)
+        with image_field.open("rb") as image_file:
+            tree = etree.parse(image_file, parser)
     except etree.XMLSyntaxError as e:
         raise ValueError(f"Invalid XML: {e}")
+    except Exception as e:
+        raise ValueError(f"Unexpected error: {e}") from e
+
+    return tree
