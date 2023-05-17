@@ -69,7 +69,8 @@ def createFeedback(request):
             image = form.cleaned_data["image"]
             try:
                 parse_image(image)
-            except ValueError:
+            except ValueError as exc:
+                print(exc)
                 messages.error(
                     request,
                     "an error occured during processing your feedback, please try again.",

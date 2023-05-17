@@ -73,7 +73,7 @@ class MessageForm(forms.Form):
 class FeedbackForm(forms.Form):
     name = forms.CharField(
         widget=forms.TextInput(
-            attrs={"class": "input", "maxlength": 100, "minlength": 5, "required": True}
+            attrs={"class": "input", "maxlength": 100, "minlength": 3, "required": True}
         )
     )
     email = forms.EmailField(
@@ -97,7 +97,8 @@ class FeedbackForm(forms.Form):
         required=True,
         validators=[
             FileExtensionValidator(
-                allowed_extensions=["svg"], message="Only SVG files are accepted."
+                allowed_extensions=["svg"],
+                message="Only svg files are accepted.",
             ),
         ],
     )
