@@ -1,9 +1,10 @@
 from django import forms
-from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
+from django.forms import ModelForm
+
 from .models import Profile
 
 
@@ -97,8 +98,8 @@ class FeedbackForm(forms.Form):
         required=True,
         validators=[
             FileExtensionValidator(
-                allowed_extensions=["svg"],
-                message="Only svg files are accepted.",
+                allowed_extensions=["svg", "jpg", "jpeg"],
+                message="Accepted image types are svg, jpg, jpeg.",
             ),
         ],
     )

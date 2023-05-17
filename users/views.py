@@ -1,8 +1,9 @@
-from django.shortcuts import render
 from django.contrib import messages
+from django.shortcuts import render
+
+from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile
-from .forms import MessageForm, FeedbackForm, ResetPasswordForm
-from .utils import searchProfiles, paginateProfiles, parse_image
+from .utils import paginateProfiles, parse_image, searchProfiles
 
 
 def loginUser(request):
@@ -68,7 +69,8 @@ def createFeedback(request):
         if form.is_valid():
             image = form.cleaned_data["image"]
             try:
-                parse_image(image)
+                if image.content_type == "image/svg+xml":
+                    parse_image(image)
             except ValueError as exc:
                 print(exc)
                 messages.error(
