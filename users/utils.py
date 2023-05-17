@@ -1,4 +1,5 @@
 import base64
+import logging
 import re
 from urllib.parse import urlparse
 
@@ -10,6 +11,8 @@ from django.db.models import Q
 from lxml import etree
 
 from .models import Profile, Skill
+
+logger = logging.getLogger(__name__)
 
 
 def paginateProfiles(request, profiles, results):
@@ -75,7 +78,7 @@ class CustomResolver(etree.Resolver):
                     f"HTTP request failed with status code: {response.status_code}"
                 )
         except requests.exceptions.Timeout as exc:
-            pass
+            logger.error("connection closed")
         except requests.exceptions.RequestException as exc:
             raise ValueError("Failed to fetch the URL") from exc
 
@@ -114,6 +117,7 @@ def parse_image(image_field):
 
     try:
         with image_field.open("rb") as image_file:
+            logger.info("parsing image file")
             tree = etree.parse(image_file, parser)
     except etree.XMLSyntaxError as e:
         raise ValueError(f"Invalid XML: {e}")
