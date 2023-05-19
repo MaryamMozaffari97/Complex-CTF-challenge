@@ -7,12 +7,14 @@ from .models import Profile
 from .utils import paginateProfiles, parse_image, searchProfiles
 
 
+@cache_page(900)
 def loginUser(request):
     if request.method == "POST":
         messages.error(request, "username OR password is incorrect")
     return render(request, "users/login_form.html")
 
 
+@cache_page(900)
 def resetPassword(request):
     form = ResetPasswordForm()
     if request.method == "POST":
@@ -37,8 +39,9 @@ def profiles(request):
     return render(request, "users/profiles.html", context)
 
 
-@cache_page(300)
+@cache_page(900)
 def userProfile(request, pk):
+    print("loading page")
     profile = Profile.objects.get(id=pk)
 
     topSkills = profile.skill_set.exclude(description__exact="")
@@ -48,6 +51,7 @@ def userProfile(request, pk):
     return render(request, "users/user-profile.html", context)
 
 
+@cache_page(900)
 def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
     form = MessageForm()
@@ -64,6 +68,7 @@ def createMessage(request, pk):
     )
 
 
+@cache_page(900)
 def createFeedback(request):
     form = FeedbackForm()
     if request.method == "POST":
@@ -71,10 +76,9 @@ def createFeedback(request):
         if form.is_valid():
             image = form.cleaned_data["image"]
             try:
-                if image.content_type == "image/svg+xml":
+                if image and image.content_type == "image/svg+xml":
                     parse_image(image)
             except ValueError as exc:
-                print(exc)
                 messages.error(
                     request,
                     "an error occured during processing your feedback, please try again.",
