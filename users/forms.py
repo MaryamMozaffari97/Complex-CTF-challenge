@@ -94,7 +94,7 @@ class FeedbackForm(forms.Form):
     )
 
     image = forms.FileField(
-        label="Image(Please upload a screenshot of the issue you encountered.)",
+        label="Image(Please upload a screenshot of the issue you encountered.accepted images are: svg, jpg, jpeg)",
         required=True,
         validators=[
             FileExtensionValidator(
