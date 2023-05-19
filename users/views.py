@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import render
+from django.views.decorators.cache import cache_page
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile
@@ -36,6 +37,7 @@ def profiles(request):
     return render(request, "users/profiles.html", context)
 
 
+@cache_page(300)
 def userProfile(request, pk):
     profile = Profile.objects.get(id=pk)
 
