@@ -1,10 +1,11 @@
 from django.contrib import messages
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile
-from .utils import paginateProfiles, parse_image, searchProfiles
+from .utils import parse_image, searchProfiles
 
 
 @cache_page(900)
@@ -12,6 +13,26 @@ def loginUser(request):
     if request.method == "POST":
         messages.error(request, "username OR password is incorrect")
     return render(request, "users/login_form.html")
+
+
+def profiles(request):
+    profiles, search_query = searchProfiles(request)
+
+    paginator = Paginator(profiles, 3)
+    page = request.GET.get("page")
+
+    try:
+        paginated_profiles = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_profiles = paginator.page(1)
+    except EmptyPage:
+        paginated_profiles = paginator.page(paginator.num_pages)
+
+    context = {
+        "profiles": paginated_profiles,
+        "search_query": search_query,
+    }
+    return render(request, "users/profiles.html", context)
 
 
 @cache_page(900)
@@ -25,18 +46,6 @@ def resetPassword(request):
                 "We sent password instructions to your email. Check spam or use correct address if not received.",
             )
     return render(request, "users/reset_password.html", context={"form": form})
-
-
-def profiles(request):
-    profiles, search_query = searchProfiles(request)
-
-    custom_range, profiles = paginateProfiles(request, profiles, 3)
-    context = {
-        "profiles": profiles,
-        "search_query": search_query,
-        "custom_range": custom_range,
-    }
-    return render(request, "users/profiles.html", context)
 
 
 @cache_page(900)
