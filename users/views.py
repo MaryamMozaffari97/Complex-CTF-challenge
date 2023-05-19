@@ -1,12 +1,13 @@
 from django.contrib import messages
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.views.generic import ListView
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile, Skill
-from .utils import parse_image, searchProfiles
+from .utils import parse_image
 
 
 @cache_page(900)
@@ -16,24 +17,28 @@ def loginUser(request):
     return render(request, "users/login_form.html")
 
 
-def profiles(request):
-    profiles, search_query = searchProfiles(request)
+class ProfileListView(ListView):
+    model = Profile
+    template_name = "users/profiles.html"
+    paginate_by = 6
+    context_object_name = "profiles"
 
-    paginator = Paginator(profiles, 3)
-    page = request.GET.get("page")
+    def get_queryset(self):
+        search_query = self.request.GET.get("search_query", "")
+        profiles = Profile.objects.filter(
+            Q(name__icontains=search_query) | Q(short_intro__icontains=search_query)
+        ).distinct()
 
-    try:
-        paginated_profiles = paginator.page(page)
-    except PageNotAnInteger:
-        paginated_profiles = paginator.page(1)
-    except EmptyPage:
-        paginated_profiles = paginator.page(paginator.num_pages)
+        return profiles
 
-    context = {
-        "profiles": paginated_profiles,
-        "search_query": search_query,
-    }
-    return render(request, "users/profiles.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search_query"] = self.request.GET.get("search_query", "")
+        return context
+
+    @method_decorator(cache_page(300))
+    def dispatch(self, *args, **kwargs):
+        return super(ProfileListView, self).dispatch(*args, **kwargs)
 
 
 @cache_page(900)
