@@ -3,7 +3,7 @@ from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile, Skill
@@ -41,6 +41,35 @@ class ProfileListView(ListView):
         return super(ProfileListView, self).dispatch(*args, **kwargs)
 
 
+class ProfileDetailView(DetailView):
+    model = Profile
+    template_name = "users/user-profile.html"
+
+    def get_queryset(self):
+        return Profile.objects.prefetch_related(
+            Prefetch(
+                "skill_set",
+                queryset=Skill.objects.exclude(description__exact=""),
+                to_attr="top_skills",
+            ),
+            Prefetch(
+                "skill_set",
+                queryset=Skill.objects.filter(description=""),
+                to_attr="other_skills",
+            ),
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["topSkills"] = self.object.top_skills
+        context["otherSkills"] = self.object.other_skills
+        return context
+
+    @method_decorator(cache_page(300))
+    def dispatch(self, *args, **kwargs):
+        return super(ProfileDetailView, self).dispatch(*args, **kwargs)
+
+
 @cache_page(900)
 def resetPassword(request):
     form = ResetPasswordForm()
@@ -52,28 +81,6 @@ def resetPassword(request):
                 "We sent password instructions to your email. Check spam or use correct address if not received.",
             )
     return render(request, "users/reset_password.html", context={"form": form})
-
-
-@cache_page(900)
-def userProfile(request, pk):
-    profile = Profile.objects.prefetch_related(
-        Prefetch(
-            "skill_set",
-            queryset=Skill.objects.exclude(description__exact=""),
-            to_attr="top_skills",
-        ),
-        Prefetch(
-            "skill_set",
-            queryset=Skill.objects.filter(description=""),
-            to_attr="other_skills",
-        ),
-    ).get(id=pk)
-
-    topSkills = profile.top_skills
-    otherSkills = profile.other_skills
-
-    context = {"profile": profile, "topSkills": topSkills, "otherSkills": otherSkills}
-    return render(request, "users/user-profile.html", context)
 
 
 @cache_page(900)
