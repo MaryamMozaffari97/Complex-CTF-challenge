@@ -4,6 +4,9 @@ import re
 from urllib.parse import urlparse
 
 import requests
+from django.conf import settings
+from django.core.cache import cache
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.files import File
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -14,33 +17,46 @@ from .models import Profile, Skill
 
 logger = logging.getLogger(__name__)
 
+CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
-def paginateProfiles(request, profiles, results):
+
+def getCustomRange(paginated_profiles, num_pages=5):
+    current_page = paginated_profiles.number
+    total_pages = paginated_profiles.paginator.num_pages
+
+    if total_pages <= num_pages:
+        return range(1, total_pages + 1)
+
+    start_page = max(current_page - (num_pages // 2), 1)
+    end_page = min(current_page + (num_pages // 2), total_pages)
+
+    if start_page == 1:
+        end_page = min(num_pages, total_pages)
+    elif end_page == total_pages:
+        start_page = max(total_pages - num_pages + 1, 1)
+
+    return range(start_page, end_page + 1)
+
+
+def paginateProfiles(request, profiles, items_per_page):
     page = request.GET.get("page")
-    paginator = Paginator(profiles, results)
+    paginator = Paginator(profiles, items_per_page)
 
-    try:
-        profiles = paginator.page(page)
-    except PageNotAnInteger:
-        page = 1
-        profiles = paginator.page(page)
-    except EmptyPage:
-        page = paginator.num_pages
-        profiles = paginator.page(page)
+    cache_key_paginated_profiles = f"paginated_profiles_{page}"
+    paginated_profiles = cache.get(cache_key_paginated_profiles)
 
-    leftIndex = int(page) - 4
+    if not paginated_profiles:
+        try:
+            paginated_profiles = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_profiles = paginator.page(1)
+        except EmptyPage:
+            paginated_profiles = paginator.page(paginator.num_pages)
+        cache.set(cache_key_paginated_profiles, paginated_profiles, CACHE_TTL)
 
-    if leftIndex < 1:
-        leftIndex = 1
+    custom_range = getCustomRange(paginated_profiles)
 
-    rightIndex = int(page) + 5
-
-    if rightIndex > paginator.num_pages:
-        rightIndex = paginator.num_pages + 1
-
-    custom_range = range(leftIndex, rightIndex)
-
-    return custom_range, profiles
+    return custom_range, paginated_profiles
 
 
 def searchProfiles(request):
@@ -49,13 +65,24 @@ def searchProfiles(request):
     if request.GET.get("search_query"):
         search_query = request.GET.get("search_query")
 
-    skills = Skill.objects.filter(name__icontains=search_query)
+    cache_key_skills = f"skills_{search_query}"
+    skills = cache.get(cache_key_skills)
 
-    profiles = Profile.objects.distinct().filter(
-        Q(name__icontains=search_query)
-        | Q(short_intro__icontains=search_query)
-        | Q(skill__in=skills)
-    )
+    if not skills:
+        skills = Skill.objects.filter(name__icontains=search_query)
+        cache.set(cache_key_skills, skills, CACHE_TTL)
+
+    cache_key_profiles = f"profiles_{search_query}"
+    profiles = cache.get(cache_key_profiles)
+
+    if not profiles:
+        profiles = Profile.objects.distinct().filter(
+            Q(name__icontains=search_query)
+            | Q(short_intro__icontains=search_query)
+            | Q(skill__in=skills)
+        )
+        cache.set(cache_key_profiles, profiles, CACHE_TTL)
+
     return profiles, search_query
 
 
