@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from .forms import ReviewForm
 from .models import Project
@@ -31,22 +31,28 @@ class ProjectListView(ListView):
         context["search_query"] = self.request.GET.get("search_query", "")
         return context
 
+    @method_decorator(cache_page(300))
     def dispatch(self, *args, **kwargs):
-        return cache_page(CACHE_TTL)(super(ProjectListView, self).dispatch)(
-            *args, **kwargs
-        )
+        return super(ProjectListView, self).dispatch(*args, **kwargs)
 
 
-@cache_page(300)
-def project(request, pk):
-    projectObj = Project.objects.get(id=pk)
-    form = ReviewForm()
+class ProjectDetailView(DetailView):
+    model = Project
+    template_name = "projects/single-project.html"
+    context_object_name = "project"
 
-    if request.method == "POST":
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = ReviewForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
         form = ReviewForm(request.POST)
         if form.is_valid():
             messages.success(request, "Your review was successfully submitted!")
+        return self.render_to_response(self.get_context_data(form=form))
 
-    return render(
-        request, "projects/single-project.html", {"project": projectObj, "form": form}
-    )
+    @method_decorator(cache_page(300))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectDetailView, self).dispatch(*args, **kwargs)
