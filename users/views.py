@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Prefetch
 from django.shortcuts import render
 from django.views.decorators.cache import cache_page
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
-from .models import Profile
+from .models import Profile, Skill
 from .utils import parse_image, searchProfiles
 
 
@@ -50,11 +51,21 @@ def resetPassword(request):
 
 @cache_page(900)
 def userProfile(request, pk):
-    print("loading page")
-    profile = Profile.objects.get(id=pk)
+    profile = Profile.objects.prefetch_related(
+        Prefetch(
+            "skill_set",
+            queryset=Skill.objects.exclude(description__exact=""),
+            to_attr="top_skills",
+        ),
+        Prefetch(
+            "skill_set",
+            queryset=Skill.objects.filter(description=""),
+            to_attr="other_skills",
+        ),
+    ).get(id=pk)
 
-    topSkills = profile.skill_set.exclude(description__exact="")
-    otherSkills = profile.skill_set.filter(description="")
+    topSkills = profile.top_skills
+    otherSkills = profile.other_skills
 
     context = {"profile": profile, "topSkills": topSkills, "otherSkills": otherSkills}
     return render(request, "users/user-profile.html", context)
