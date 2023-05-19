@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Project
+from django.shortcuts import render
+from django.views.decorators.cache import cache_page
+
 from .forms import ReviewForm
-from .utils import searchProjects, paginateProjects
+from .models import Project
+from .utils import paginateProjects, searchProjects
 
 
 def projects(request):
@@ -17,6 +19,7 @@ def projects(request):
     return render(request, "projects/projects.html", context)
 
 
+@cache_page(300)
 def project(request, pk):
     projectObj = Project.objects.get(id=pk)
     form = ReviewForm()
