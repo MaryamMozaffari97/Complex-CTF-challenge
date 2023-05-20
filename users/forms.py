@@ -107,7 +107,8 @@ class FeedbackForm(forms.Form):
 
 class ResetPasswordForm(forms.Form):
     email = forms.EmailField(
+        required=True,
         widget=forms.EmailInput(
             attrs={"class": "input", "maxlength": 100, "minlength": 5, "required": True}
-        )
+        ),
     )

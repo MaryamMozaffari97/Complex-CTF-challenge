@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, ListView
+from django.views.generic.edit import FormView
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile, Skill
@@ -77,17 +79,17 @@ class ProfileDetailView(DetailView):
         return super(ProfileDetailView, self).dispatch(*args, **kwargs)
 
 
-@cache_page(900)
-def resetPassword(request):
-    form = ResetPasswordForm()
-    if request.method == "POST":
-        form = ResetPasswordForm(request.POST)
-        if form.is_valid():
-            messages.success(
-                request,
-                "We sent password instructions to your email. Check spam or use correct address if not received.",
-            )
-    return render(request, "users/reset_password.html", context={"form": form})
+class ResetPasswordView(FormView):
+    template_name = "users/reset_password.html"
+    form_class = ResetPasswordForm
+    success_url = reverse_lazy("reset-password")
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "We sent password instructions to your email. Check spam or use correct address if not received.",
+        )
+        return super().form_valid(form)
 
 
 @cache_page(900)
