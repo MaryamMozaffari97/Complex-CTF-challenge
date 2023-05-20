@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, ListView
 
@@ -10,11 +11,17 @@ from .models import Profile, Skill
 from .utils import parse_image
 
 
-@cache_page(900)
-def loginUser(request):
-    if request.method == "POST":
+class LoginUserView(View):
+    def get(self, request):
+        return render(request, "users/login_form.html")
+
+    def post(self, request):
         messages.error(request, "username OR password is incorrect")
-    return render(request, "users/login_form.html")
+        return render(request, "users/login_form.html")
+
+    @method_decorator(cache_page(300))
+    def dispatch(self, *args, **kwargs):
+        return super(LoginUserView, self).dispatch(*args, **kwargs)
 
 
 class ProfileListView(ListView):
