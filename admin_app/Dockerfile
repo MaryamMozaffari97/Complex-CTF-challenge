@@ -10,3 +10,6 @@ RUN useradd -r -s /bin/false phpuser \
 
 # Copy your PHP code to the container
 COPY --chown=phpuser:www-data ./src/ /var/www/html/
+
+# Expose the required port
+EXPOSE 8080
