@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  djangoapp:
+    build: .
+    volumes:
+      - .:/opt/services/djangoapp/src
+      - ./staticfiles:/opt/services/djangoapp/staticfiles
+    command: gunicorn devhive.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    depends_on:
+      - redis
+
+  nginx:
+    image: nginx:1.13
+    ports:
+      - 80:80
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./staticfiles:/static
+    depends_on:
+      - djangoapp
+
+  redis:
+    image: redis:latest
+    command: redis-server --save "" --appendonly no --protected-mode no
