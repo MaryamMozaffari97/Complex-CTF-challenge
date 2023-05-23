@@ -1,11 +1,11 @@
-version: '3'
+version: '3.8'
 
 services:
-  djangoapp:
-    build: .
+  devhive:
+    build: ./devhive_app
     volumes:
-      - .:/opt/services/djangoapp/src
-      - ./staticfiles:/opt/services/djangoapp/staticfiles
+      - ./devhive_app:/opt/services/djangoapp/src
+      - ./devhive_app/staticfiles:/opt/services/djangoapp/staticfiles
     command: gunicorn devhive.wsgi:application --bind 0.0.0.0:8000 --workers 3
     depends_on:
       - redis
@@ -15,11 +15,35 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./config/nginx/conf.d:/etc/nginx/conf.d
-      - ./staticfiles:/static
+      - ./devhive_app/config/nginx/conf.d:/etc/nginx/conf.d
+      - ./devhive_app/staticfiles:/static
     depends_on:
-      - djangoapp
+      - devhive
 
   redis:
     image: redis:latest
     command: redis-server --save "" --appendonly no --protected-mode no
+
+  admin:
+    build: ./admin_app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: adminDB
+      DB_USER: admin
+      DB_PASS: 1z^4A6U9N0pf7#doVkNzNEf&PKED^GCa
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: o4cYZ7Mr5O5zephjJ4aG7hE2
+      MYSQL_DATABASE: adminDB
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1z^4A6U9N0pf7#doVkNzNEf&PKED^GCa
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./admin_app/db/adminDB.sql:/docker-entrypoint-initdb.d/data.sql
+
+volumes:
+  db_data:
