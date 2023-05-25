@@ -92,7 +92,6 @@ class ResetPasswordView(FormView):
         return super().form_valid(form)
 
 
-@cache_page(900)
 def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
     form = MessageForm()
@@ -109,7 +108,6 @@ def createMessage(request, pk):
     )
 
 
-@cache_page(900)
 def createFeedback(request):
     form = FeedbackForm()
     if request.method == "POST":
