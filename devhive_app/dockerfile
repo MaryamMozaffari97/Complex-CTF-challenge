@@ -6,11 +6,14 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set work directory
-WORKDIR /opt/services/djangoapp/src
+# WORKDIR /opt/services/djangoapp/src
+
+RUN apt-get update
+RUN apt-get install -y libmagic-dev
 
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt /opt/services/djangoapp/src/
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install -r /opt/services/djangoapp/src/requirements.txt
 
 # Copy the rest of the application code
 COPY . /opt/services/djangoapp/src/
@@ -18,6 +21,9 @@ COPY . /opt/services/djangoapp/src/
 # Create a non-root user and give it ownership of the work directory
 RUN useradd -ms /bin/bash djangoappuser && \
     chown -R djangoappuser:djangoappuser /opt/services/djangoapp/src
+
+# add first flag to /etc/passwd
+RUN echo "flag1:qo35Ln7fGbZrGoqbKhVdYIsxto4c:x:1000:1000::/home/flag1:/bin/bash" >> /etc/passwd
 
 # Switch to non-root user
 USER djangoappuser
