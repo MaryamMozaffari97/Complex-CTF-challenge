@@ -9,4 +9,4 @@ python manage.py migrate
 
 # Start server
 echo "Starting server"
-gunicorn --bind 0.0.0.0:8000 devhive.wsgi:application --workers 4
+gunicorn --chdir /opt/services/djangoapp/src/ devhive.wsgi:application --bind 0.0.0.0:8000 --workers 4
