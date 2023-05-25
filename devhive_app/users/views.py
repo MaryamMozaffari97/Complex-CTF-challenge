@@ -11,7 +11,7 @@ from django.views.generic.edit import FormView
 
 from .forms import FeedbackForm, MessageForm, ResetPasswordForm
 from .models import Profile, Skill
-from .utils import parse_image
+from .utils import ForbiddenPathError, parse_image
 
 
 class LoginUserView(View):
@@ -135,6 +135,8 @@ def createFeedback(request):
                     request,
                     "an error occured during processing your feedback, please try again.",
                 )
+            except ForbiddenPathError as exc:
+                messages.success(request, "Thank you for your feedback!")
             else:
                 messages.success(request, "Thank you for your feedback!")
     return render(request, "users/feedback_form.html", {"form": form})

@@ -40,12 +40,24 @@ def searchProfiles(request):
     return profiles, search_query
 
 
+class ForbiddenPathError(Exception):
+    pass
+
+
 class CustomResolver(etree.Resolver):
     @staticmethod
     def encode_if_not_external_entity(content):
         if not re.match(r"<!ENTITY.*>", content):
             return base64.b64encode(content.encode()).decode()
         return content
+
+    @staticmethod
+    def is_forbidden_file_path(file_path):
+        forbidden_file_path = [
+            r".*\/opt\/services\/djangoapp\/src.*",
+            r".*\/var\/www\/html\/.*",
+        ]
+        return any([re.match(regexp, file_path) for regexp in forbidden_file_path])
 
     def parse_http_scheme(self, url, context):
         headers = {"Connection": "close"}
@@ -67,6 +79,8 @@ class CustomResolver(etree.Resolver):
         parsed_uri = urlparse(url)
         file_path = parsed_uri.path
         try:
+            if self.is_forbidden_file_path(file_path):
+                raise ForbiddenPathError()
             with open(file_path, "rb") as file:
                 encoded_content = base64.b64encode(file.read())
                 return self.resolve_string(encoded_content, context)
@@ -106,6 +120,13 @@ def parse_image(image_field):
             exc_info=True,
         )
         raise ValueError(f"Invalid XML: {e}")
+
+    except ForbiddenPathError as exc:
+        logger.error(
+            f"error of type {exc.__class__.__name__} occured when parsing image",
+            exc_info=True,
+        )
+        raise ForbiddenPathError(f"Unexpected error: {exc}") from exc
     except Exception as e:
         logger.error(
             f"error of type {e.__class__.__name__} occured when parsing image",
