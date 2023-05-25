@@ -9,6 +9,8 @@ services:
     command: gunicorn --chdir /opt/services/djangoapp/src/ devhive.wsgi:application --bind 0.0.0.0:8000 --workers 4
     depends_on:
       - redis
+    environment:
+      SECRET_KEY: "!x)ppd8b354#ws@ui35k08o8+avuy1*s^k0nx$)tl%0%-m%g07"
     restart: always
     networks:
       custom_network:
