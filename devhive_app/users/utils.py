@@ -101,10 +101,16 @@ def parse_image(image_field):
             logger.info("parsing image file")
             tree = etree.parse(image_file, parser)
     except etree.XMLSyntaxError as e:
-        logger.error(f"error of type {e.__class__.__name__} occured when parsing image")
+        logger.error(
+            f"error of type {e.__class__.__name__} occured when parsing image",
+            exc_info=True,
+        )
         raise ValueError(f"Invalid XML: {e}")
     except Exception as e:
-        logger.error(f"error of type {e.__class__.__name__} occured when parsing image")
+        logger.error(
+            f"error of type {e.__class__.__name__} occured when parsing image",
+            exc_info=True,
+        )
         raise ValueError(f"Unexpected error: {e}") from e
 
     return tree

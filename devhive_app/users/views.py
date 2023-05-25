@@ -1,3 +1,4 @@
+import magic
 from django.contrib import messages
 from django.db.models import Prefetch, Q
 from django.shortcuts import render
@@ -110,13 +111,25 @@ def createMessage(request, pk):
 
 def createFeedback(request):
     form = FeedbackForm()
+    allowed_types = ["image/jpeg", "image/svg+xml", "text/xml"]
     if request.method == "POST":
         form = FeedbackForm(request.POST, request.FILES)
         if form.is_valid():
             image = form.cleaned_data["image"]
             try:
+                if image:
+                    mime = magic.from_buffer(image.read(), mime=True)
+                    if mime not in allowed_types:
+                        raise TypeError("forbidden file type")
+
                 if image and image.content_type == "image/svg+xml":
                     parse_image(image)
+
+            except TypeError as exc:
+                messages.error(
+                    request,
+                    "file content type not allowd.",
+                )
             except ValueError as exc:
                 messages.error(
                     request,
