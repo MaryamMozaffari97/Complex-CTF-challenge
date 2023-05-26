@@ -11,7 +11,7 @@ Flag2: php app login page: localhost:
 Flag3: SQLi
 
 Quick Start Using Docker
-Using docker hub (Quickest):
+
 
 To access the challenges, you need docker installed.
 Run this command to pull and run the image from docker hub:
