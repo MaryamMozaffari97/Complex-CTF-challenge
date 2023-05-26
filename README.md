@@ -16,7 +16,7 @@ Flag3: After solving the SQLi challenge and entering the login page.
 
 To access the challenges, you need docker installed.
 
-# Run this command:
+## Run this command:
 
 $docker-compose up --build
 
