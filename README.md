@@ -14,7 +14,9 @@ Quick Start Using Docker
 
 
 To access the challenges, you need docker installed.
-Run this command to pull and run the image from docker hub:
-docker-compose up --build
+
+Run this command:
+
+$docker-compose up --build
 
 Access the challenges with this URL: http://localhost:80
