@@ -11,12 +11,12 @@ Flag2:Login page to the Php app: path -> /etc/hosts
 Flag3: After solving the SQLi challenge and entering the login page.
 
 
-Quick Start Using Docker
+# Quick Start Using Docker
 
 
 To access the challenges, you need docker installed.
 
-Run this command:
+# Run this command:
 
 $docker-compose up --build
 
