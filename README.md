@@ -18,7 +18,7 @@ To access the challenges, you need docker and docker-compose installed.
 
 Clone the repository
 
-$ git clone 
+$ git clone git@github.com:MaryamMozaffari97/vulx_challenge.git
 
 Open the main directory of the project (where docker-compose.yml file exists)
 
