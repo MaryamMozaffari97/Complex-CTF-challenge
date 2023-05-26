@@ -14,9 +14,12 @@ Flag3: After solving the SQLi challenge and entering the login page.
 # Quick Start Using Docker
 
 
-To access the challenges, you need docker and docker-compose installed.
+To access the challenges, you need docker and docker-compose installed. 
+
 Clone the repository
+
 $ git clone 
+
 Open the main directory of the project (where docker-compose.yml file exists)
 
 ## Run this command:
