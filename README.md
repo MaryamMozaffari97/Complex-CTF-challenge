@@ -4,7 +4,7 @@ This repository is a Dockerized Django and php application containing XEE and SQ
 
 That includes 3 flags.
 
-Flag1: /etc/passwd
+Flag1: After solving XEE challenge and viewing the file : /etc/passwd
 
 Flag2: Login page to the Php app: path -> /etc/hosts
 
