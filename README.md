@@ -1,9 +1,13 @@
 # vulx_challenge
 
 This repository is a Dockerized Django and php application containing XEE and SQLI vulnerability challenges.
+
 That include 3 flags.
+
 Flag1 : /etc/passwd
+
 Flag2: php app login page: localhost:
+
 Flag3: SQLi
 
 Quick Start Using Docker
