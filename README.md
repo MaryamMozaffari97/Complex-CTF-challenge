@@ -2,13 +2,14 @@
 
 This repository is a Dockerized Django and php application containing XEE and SQLI vulnerability challenges.
 
-That include 3 flags.
+That includes 3 flags.
 
 Flag1 : /etc/passwd
 
-Flag2: php app login page: /etc/hosts
+Flag2:Login page to the Php app: path -> /etc/hosts
 
-Flag3: SQLi: php admin login page
+Flag3: After solving the SQLi challenge and entering the login page.
+
 
 Quick Start Using Docker
 
