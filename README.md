@@ -6,9 +6,9 @@ That include 3 flags.
 
 Flag1 : /etc/passwd
 
-Flag2: php app login page: localhost:
+Flag2: php app login page: /etc/hosts
 
-Flag3: SQLi
+Flag3: SQLi: php admin login page
 
 Quick Start Using Docker
 
