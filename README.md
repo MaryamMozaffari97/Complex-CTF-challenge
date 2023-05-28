@@ -24,6 +24,7 @@ Open the main directory of the project (where docker-compose.yml file exists)
 
 ## Run this command:
 $docker build --no-cache --network=host -t web_form .
+
 $docker-compose up --build
 
 Access the challenges with this URL: http://localhost:80
