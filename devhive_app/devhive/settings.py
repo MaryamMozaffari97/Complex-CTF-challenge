@@ -26,9 +26,10 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+CSRF_COOKIE_SECURE = True
 
 ALLOWED_HOSTS = ["localhost"]
-
+CSRF_TRUSTED_ORIGINS = ["localhost"]
 
 # Application definition
 
