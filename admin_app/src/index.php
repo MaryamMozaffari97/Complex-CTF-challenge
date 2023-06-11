@@ -136,13 +136,12 @@ if (!empty($_GET)) {
     <!-- Login page -->
     <?php if (!$authorized) { ?>
         <form class="login" method="GET">
-            <h3>your second flag is : fK4W6yxP8pThmrEr!6tvA0n4s%5G&jOt6*rdgSi <h3>
+            <h3>flag_f109947976be6b3eab506d48f648698d<h3>
                     <br>
 
                     <h2>Please log in:</h2>
-                    <p><label>Username:</label><input type="text" name="username"
-                            value="<?php if (!empty($user))
-                                echo $user; ?>"></p>
+                    <p><label>Username:</label><input type="text" name="username" value="<?php if (!empty($user))
+                        echo $user; ?>"></p>
                     <p><label>Password:&nbsp;</label><input type="password" name="password" value="">&nbsp;
                         <input type="submit" value="Go">
                     </p>
@@ -159,7 +158,7 @@ if (!empty($_GET)) {
                 </h2>
                 <p>Congratulations!</p>
                 <p>You have successfully bypassed authentication security.</p>
-                <h3>your third flag is : z^4A6U9N0pf7#doVkNzNEfPKED^GCaTQyqw </h3>
+                <h3>flag_b4494240702252a1964da719bd046033</h3>
                 <p>&nbsp;</p>
                 <p><img src="images.jpeg" alt="Hacker" style="width: 100%"></p>
                 <form><input class="logout" type="submit" value="Logout"></form>
