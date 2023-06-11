@@ -1,11 +1,11 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.forms import ModelForm
 
 from .models import Profile
+from .validators import MimeTypeValidator, SVGFileValidator
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -101,6 +101,8 @@ class FeedbackForm(forms.Form):
                 allowed_extensions=["svg", "jpg", "jpeg"],
                 message="Accepted image types are svg, jpg, jpeg.",
             ),
+            MimeTypeValidator(),
+            SVGFileValidator(),
         ],
     )
 
