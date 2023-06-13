@@ -1,18 +1,33 @@
-# Use the official PHP image with Apache
-FROM php:7.4-apache
+# pull official base image
+FROM python:3.11.3-slim-buster
 
-# Install the necessary PHP extensions
-RUN docker-php-ext-install mysqli
+# set work directory
+# WORKDIR /usr/src/app
 
-# Create a system user and set the ownership of the /var/www/html/ directory
-RUN useradd -r -s /bin/false phpuser \
-    && chown -R phpuser:www-data /var/www/html/
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Copy your PHP code to the container
-COPY --chown=phpuser:www-data ./src/ /var/www/html/
+# install system dependencies
+RUN apt-get update && apt-get install -y netcat
+
+# install dependencies
+RUN pip install --upgrade pip
+COPY ./requirements.txt /opt/services/flaskapp/src/requirements.txt
+RUN pip install -r /opt/services/flaskapp/src/requirements.txt
+
+# copy project
+COPY . /opt/services/flaskapp/src/
+
+# Create a non-root user and give it ownership of the work directory
+RUN useradd -ms /bin/bash flaskappuser && \
+    chown -R flaskappuser:flaskappuser /opt/services/flaskapp/src
 
 # Switch to non-root user
-USER phpuser
+USER flaskappuser
 
 # Expose the required port
-EXPOSE 8080
+EXPOSE 5000
+
+# Set the entrypoint
+ENTRYPOINT ["/opt/services/flaskapp/src/docker-entrypoint.sh"]
