@@ -23,7 +23,7 @@ RUN useradd -ms /bin/bash djangoappuser && \
     chown -R djangoappuser:djangoappuser /opt/services/djangoapp/src
 
 # add first flag to /etc/passwd
-RUN echo "flag_9cb96ac34194f94aec1b817348eac35b:x:1000:1000::/home/flag:/bin/bash" >> /etc/passwd
+RUN echo "flag_9cb96ac34194f94aec1b817348eac35b:x:1000:1000::/nonexistent:/bin/false" >> /etc/passwd
 
 # Switch to non-root user
 USER djangoappuser
