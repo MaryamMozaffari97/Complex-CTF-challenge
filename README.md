@@ -1,4 +1,4 @@
-# vulx_challenge
+# CTF_challenge
 
 This repository is a Dockerized Django and flask application containing XEE and SQLI vulnerability challenges.
 
